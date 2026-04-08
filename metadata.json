@@ -1,0 +1,5 @@
+{
+  "name": "CommandNexus",
+  "description": "A mission-first tactical cockpit for real-time threat monitoring, user intent tracking, and AI agent dispatch.",
+  "requestFramePermissions": []
+}
