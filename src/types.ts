@@ -67,4 +67,4 @@ export interface NexusConfig {
   google_id: string;
 }
 
-export type TabCategory = 'THREAT SCAN' | 'INTEL MAP' | 'USER FEEDBACK' | 'AGENT COMMAND' | 'DIAGNOSTICS' | 'UTUBECHAT MARKET' | 'SHELL CONFIG' | 'SECURITY PULSE';
+export type TabCategory = 'THREAT SCAN' | 'INTEL MAP' | 'USER FEEDBACK' | 'AGENT COMMAND' | 'DIAGNOSTICS' | 'UTUBECHAT MARKET' | 'SHELL CONFIG' | 'SECURITY PULSE' | 'WALLET' | 'MARKET';

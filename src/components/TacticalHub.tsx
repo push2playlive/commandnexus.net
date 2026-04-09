@@ -7,6 +7,9 @@ import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { ShellConfigInput } from './ShellConfigInput';
 import { SecurityPulse } from './SecurityPulse';
 import { NetworkRadar } from './NetworkRadar';
+import { GoogleTrendsOracle } from './GoogleTrendsOracle';
+import { NexusWallet } from './NexusWallet';
+import { MarketDispatcher } from './MarketDispatcher';
 
 interface TacticalHubProps {
   activeTab: TabCategory;
@@ -180,14 +183,19 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
       case 'SECURITY PULSE':
         return (
           <div className="space-y-6 h-full flex flex-col">
-            <div className="h-64 shrink-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-64 shrink-0">
               <NetworkRadar />
+              <GoogleTrendsOracle />
             </div>
             <div className="flex-1 min-h-0">
               <SecurityPulse events={securityEvents} blacklist={blacklist} />
             </div>
           </div>
         );
+      case 'WALLET':
+        return <NexusWallet />;
+      case 'MARKET':
+        return <MarketDispatcher />;
       default:
         return (
           <div className="h-full flex flex-col items-center justify-center text-zinc-600 space-y-4">

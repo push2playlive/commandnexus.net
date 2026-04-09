@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, Settings, ShieldAlert } from 'lucide-react';
+import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, Settings, ShieldAlert, Wallet, Target } from 'lucide-react';
 import { TabCategory } from '../types';
 import { motion } from 'motion/react';
 
@@ -16,6 +16,8 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({ activeTab, onTabChange
     { id: 'AGENT COMMAND', icon: Cpu, label: 'AGENT COMMAND', led: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' },
     { id: 'DIAGNOSTICS', icon: Activity, label: 'DIAGNOSTICS', led: 'bg-zinc-100 shadow-[0_0_8px_rgba(255,255,255,0.8)]' },
     { id: 'UTUBECHAT MARKET', icon: ShoppingCart, label: 'UTUBECHAT MARKET', led: 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]' },
+    { id: 'WALLET', icon: Wallet, label: 'NEXUS WALLET', led: 'bg-primary shadow-[0_0_8px_rgba(6,182,212,0.8)]' },
+    { id: 'MARKET', icon: Target, label: 'MARKET DISPATCH', led: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse' },
     { id: 'SHELL CONFIG', icon: Settings, label: 'SHELL CONFIG', led: 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]' },
     { id: 'SECURITY PULSE', icon: ShieldAlert, label: 'SECURITY PULSE', led: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' },
   ];

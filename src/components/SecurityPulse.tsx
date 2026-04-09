@@ -10,12 +10,13 @@ interface SecurityPulseProps {
 
 export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist }) => {
   const [lookupIp, setLookupIp] = useState<string | null>(null);
+  const [lookupData, setLookupData] = useState<any>(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   const handleThreatAction = async (ip: string, action: 'BLOCK' | 'INVESTIGATE' | 'IGNORE' | 'LOOKUP') => {
     if (action === 'BLOCK') {
       console.log(`Target Nullified: ${ip} blocked across all apps.`);
-      // In a real app, this would call Supabase
-      // const { error } = await supabase.from('nexus_security_blacklist').insert({ ip_address: ip, reason: 'Manual Block from War Room', threat_level: 10 });
       alert(`Target Nullified: ${ip} blocked across all apps.`);
     } else if (action === 'INVESTIGATE') {
       window.open(`https://www.abuseipdb.com/check/${ip}`, '_blank');
@@ -24,6 +25,23 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
       alert(`IP ${ip} moved to Safe List for 24 hours.`);
     } else if (action === 'LOOKUP') {
       setLookupIp(ip);
+      fetchIpDetails(ip);
+    }
+  };
+
+  const fetchIpDetails = async (ip: string) => {
+    setIsLookingUp(true);
+    setLookupError(null);
+    setLookupData(null);
+    try {
+      const response = await fetch(`/api/lookup-ip?ip=${ip}`);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Failed to fetch IP details');
+      setLookupData(result.data);
+    } catch (err: any) {
+      setLookupError(err.message);
+    } finally {
+      setIsLookingUp(false);
     }
   };
 
@@ -77,8 +95,15 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
                 <p className="text-zinc-300 text-xs font-mono">{event.details}</p>
                 <div className="mt-3 flex gap-4">
                   <button 
+                    onClick={() => handleThreatAction(event.ip || '127.0.0.1', 'LOOKUP')}
+                    className="text-[9px] text-blue-400 hover:text-blue-300 uppercase font-bold tracking-widest transition-colors flex items-center gap-1"
+                  >
+                    <Search className="w-2.5 h-2.5" />
+                    Lookup
+                  </button>
+                  <button 
                     onClick={() => handleThreatAction(event.ip || '127.0.0.1', 'INVESTIGATE')}
-                    className="text-[9px] text-blue-400 hover:text-blue-300 uppercase font-bold tracking-widest transition-colors"
+                    className="text-[9px] text-zinc-500 hover:text-zinc-300 uppercase font-bold tracking-widest transition-colors"
                   >
                     Investigate
                   </button>
@@ -87,12 +112,6 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
                     className="text-[9px] text-red-400 hover:text-red-300 uppercase font-bold tracking-widest transition-colors"
                   >
                     Block IP
-                  </button>
-                  <button 
-                    onClick={() => handleThreatAction(event.ip || '127.0.0.1', 'IGNORE')}
-                    className="text-[9px] text-zinc-500 hover:text-zinc-300 uppercase font-bold tracking-widest transition-colors"
-                  >
-                    Ignore
                   </button>
                 </div>
               </div>
@@ -171,34 +190,82 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
                     <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-[0.2em]">Target Identifier</span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-zinc-800/30 p-3 rounded-lg border border-zinc-800">
-                      <span className="text-[8px] text-zinc-500 uppercase block mb-1">Abuse Score</span>
-                      <span className="text-red-500 font-bold text-sm">84%</span>
+                  {isLookingUp ? (
+                    <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest animate-pulse">Scanning Neural Paths...</span>
                     </div>
-                    <div className="bg-zinc-800/30 p-3 rounded-lg border border-zinc-800">
-                      <span className="text-[8px] text-zinc-500 uppercase block mb-1">Reports</span>
-                      <span className="text-zinc-100 font-bold text-sm">1,402</span>
+                  ) : lookupError ? (
+                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-center">
+                      <p className="text-red-400 text-xs font-mono mb-2">{lookupError}</p>
+                      <button 
+                        onClick={() => fetchIpDetails(lookupIp!)}
+                        className="text-[10px] text-zinc-400 hover:text-zinc-100 underline uppercase tracking-widest"
+                      >
+                        Retry Scan
+                      </button>
                     </div>
-                  </div>
+                  ) : lookupData ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-zinc-800/30 p-3 rounded-lg border border-zinc-800">
+                          <span className="text-[8px] text-zinc-500 uppercase block mb-1">Abuse Score</span>
+                          <span className={`font-bold text-sm ${lookupData.abuseConfidenceScore > 50 ? 'text-red-500' : 'text-emerald-500'}`}>
+                            {lookupData.abuseConfidenceScore}%
+                          </span>
+                        </div>
+                        <div className="bg-zinc-800/30 p-3 rounded-lg border border-zinc-800">
+                          <span className="text-[8px] text-zinc-500 uppercase block mb-1">Total Reports</span>
+                          <span className="text-zinc-100 font-bold text-sm">{lookupData.totalReports?.toLocaleString()}</span>
+                        </div>
+                      </div>
 
-                  <div className="space-y-2">
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      This IP has been flagged for multiple SSH brute-force attempts and SQL injection probes across the Nexus network.
-                    </p>
-                  </div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center text-[10px] font-mono border-b border-zinc-800/50 pb-2">
+                          <span className="text-zinc-500 uppercase">ISP</span>
+                          <span className="text-zinc-300">{lookupData.isp}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-mono border-b border-zinc-800/50 pb-2">
+                          <span className="text-zinc-500 uppercase">Usage Type</span>
+                          <span className="text-zinc-300">{lookupData.usageType}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-mono border-b border-zinc-800/50 pb-2">
+                          <span className="text-zinc-500 uppercase">Country</span>
+                          <span className="text-zinc-300">{lookupData.countryCode}</span>
+                        </div>
+                      </div>
 
-                  <div className="pt-4 flex gap-3">
-                    <button 
-                      onClick={() => window.open(`https://www.abuseipdb.com/check/${lookupIp}`, '_blank')}
-                      className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold rounded-lg uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      Full Report
-                    </button>
+                      {lookupData.isSimulated && (
+                        <div className="p-2 bg-amber-500/5 border border-amber-500/10 rounded text-center">
+                          <span className="text-[8px] text-amber-500/60 font-mono uppercase tracking-widest">Demo Mode: Simulated Intelligence</span>
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+
+                  <div className="pt-4 flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => window.open(`https://www.abuseipdb.com/check/${lookupIp}`, '_blank')}
+                        className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold rounded-lg uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Full Report
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleThreatAction(lookupIp!, 'BLOCK');
+                          setLookupIp(null);
+                        }}
+                        className="flex-1 py-2.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white text-[10px] font-bold rounded-lg uppercase tracking-widest transition-all border border-red-500/30 flex items-center justify-center gap-2"
+                      >
+                        <UserX className="w-3 h-3" />
+                        Block IP
+                      </button>
+                    </div>
                     <button 
                       onClick={() => setLookupIp(null)}
-                      className="flex-1 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-lg uppercase tracking-widest transition-all border border-zinc-700"
+                      className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-lg uppercase tracking-widest transition-all border border-zinc-700"
                     >
                       Dismiss
                     </button>
