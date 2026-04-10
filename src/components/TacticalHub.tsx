@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TabCategory, Threat, Agent, Trend, SecurityEvent, BlacklistedIP } from '../types';
-import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, AlertTriangle, Zap, User, Terminal, Globe, BarChart3 } from 'lucide-react';
+import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, AlertTriangle, Zap, User, Terminal, Globe, BarChart3, Settings } from 'lucide-react';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
 
 import { ShellConfigInput } from './ShellConfigInput';
@@ -34,6 +34,33 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
   blacklist,
   onDispatch 
 }) => {
+  const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(false);
+  const [triggerThreatType, setTriggerThreatType] = useState('SQL Injection');
+  const [dispatchLogs, setDispatchLogs] = useState<{id: string, message: string, timestamp: string}[]>([]);
+  const lastProcessedThreatId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!autoDispatchEnabled || threats.length === 0) return;
+
+    const latestThreat = threats[threats.length - 1];
+    
+    if (latestThreat.id !== lastProcessedThreatId.current && latestThreat.type.toLowerCase().includes(triggerThreatType.toLowerCase())) {
+      lastProcessedThreatId.current = latestThreat.id;
+      
+      const targetAgent = agents.find(a => a.status !== 'Dispatched');
+      
+      if (targetAgent) {
+        onDispatch(targetAgent.id);
+        const log = {
+          id: Math.random().toString(36).substr(2, 9),
+          message: `[AUTO] ${targetAgent.name} -> ${latestThreat.type} (${latestThreat.source})`,
+          timestamp: new Date().toLocaleTimeString()
+        };
+        setDispatchLogs(prev => [log, ...prev].slice(0, 5));
+      }
+    }
+  }, [threats, autoDispatchEnabled, triggerThreatType, agents, onDispatch]);
+
   const renderContent = () => {
     switch (activeTab) {
       case 'DIAGNOSTICS':
@@ -68,39 +95,90 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
       case 'AGENT COMMAND':
         return (
           <div className="space-y-4">
-            {agents.map((agent) => (
-              <div key={agent.id} className="bg-zinc-900/50 border border-zinc-800 p-4 rounded-lg flex items-center justify-between group hover:border-emerald-500/30 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    agent.status === 'Working' ? 'bg-emerald-500/10 text-emerald-500' : 
-                    agent.status === 'Dispatched' ? 'bg-blue-500/10 text-blue-500' : 'bg-zinc-700 text-zinc-500'
-                  }`}>
-                    <Cpu className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-zinc-100 font-bold text-sm">{agent.name}</h3>
-                    <p className="text-zinc-500 text-xs font-mono">SHIFT: {agent.shift} | TASK: {agent.task}</p>
-                  </div>
+            {/* Auto-Dispatch Configuration */}
+            <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl mb-6 shadow-shield">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <Settings className="w-5 h-5 text-amber-500" />
+                  <h3 className="text-zinc-100 font-bold text-xs tracking-widest uppercase">Auto-Dispatch Protocol</h3>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <span className={`text-[10px] font-bold uppercase ${
-                      agent.status === 'Working' ? 'text-emerald-400' : 
-                      agent.status === 'Dispatched' ? 'text-blue-400' : 'text-zinc-500'
-                    }`}>
-                      {agent.status}
-                    </span>
-                  </div>
-                  <button 
-                    onClick={() => onDispatch(agent.id)}
-                    disabled={agent.status === 'Dispatched'}
-                    className="px-4 py-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-100 text-[10px] font-bold rounded border border-zinc-700 uppercase transition-colors"
-                  >
-                    Dispatch
-                  </button>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={autoDispatchEnabled}
+                    onChange={() => setAutoDispatchEnabled(!autoDispatchEnabled)}
+                  />
+                  <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500/50"></div>
+                </label>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                <div className="space-y-2">
+                  <label className="text-[10px] text-zinc-500 font-mono uppercase">Trigger Threat Signature</label>
+                  <input 
+                    type="text" 
+                    value={triggerThreatType}
+                    onChange={(e) => setTriggerThreatType(e.target.value)}
+                    className="w-full bg-black/40 border border-zinc-800 p-2 rounded text-zinc-100 font-mono text-xs focus:border-amber-500/50 outline-none transition-colors"
+                    placeholder="e.g. SQL Injection"
+                  />
+                </div>
+                <div className="text-[9px] text-zinc-500 font-mono uppercase italic leading-relaxed">
+                  System will automatically assign available units to match the specified threat signature in real-time.
                 </div>
               </div>
-            ))}
+
+              {dispatchLogs.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-zinc-800 space-y-2">
+                  <h4 className="text-[9px] text-zinc-500 font-mono uppercase tracking-widest mb-2">Protocol Logs</h4>
+                  <div className="space-y-1">
+                    {dispatchLogs.map(log => (
+                      <div key={log.id} className="flex justify-between text-[10px] font-mono text-amber-500/70 bg-amber-500/5 px-2 py-1 rounded">
+                        <span>{log.message}</span>
+                        <span>{log.timestamp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {agents.map((agent) => (
+                <div key={agent.id} className="bg-zinc-900/50 border border-zinc-800 p-4 rounded-lg flex items-center justify-between group hover:border-emerald-500/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      agent.status === 'Working' ? 'bg-emerald-500/10 text-emerald-500' : 
+                      agent.status === 'Dispatched' ? 'bg-blue-500/10 text-blue-500' : 'bg-zinc-700 text-zinc-500'
+                    }`}>
+                      <Cpu className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-zinc-100 font-bold text-sm">{agent.name}</h3>
+                      <p className="text-zinc-500 text-xs font-mono">SHIFT: {agent.shift} | TASK: {agent.task}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <span className={`text-[10px] font-bold uppercase ${
+                        agent.status === 'Working' ? 'text-emerald-400' : 
+                        agent.status === 'Dispatched' ? 'text-blue-400' : 'text-zinc-500'
+                      }`}>
+                        {agent.status}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => onDispatch(agent.id)}
+                      disabled={agent.status === 'Dispatched'}
+                      className="px-4 py-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-100 text-[10px] font-bold rounded border border-zinc-700 uppercase transition-colors"
+                    >
+                      Dispatch
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         );
       case 'INTEL MAP':

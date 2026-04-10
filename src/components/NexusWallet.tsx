@@ -402,43 +402,66 @@ export const NexusWallet: React.FC = () => {
                 )}
               </AnimatePresence>
 
-              <div className="flex-1 p-6">
-                <div className="space-y-4">
+              <div className="flex-1 p-6 overflow-auto custom-scrollbar">
+                {/* Column Headers */}
+                <div className="grid grid-cols-12 gap-4 px-4 mb-4 text-[10px] font-mono text-zinc-500 uppercase tracking-widest hidden md:grid">
+                  <div className="col-span-1">Type</div>
+                  <div className="col-span-4">Details / Address</div>
+                  <div className="col-span-2">Asset</div>
+                  <div className="col-span-2">Status</div>
+                  <div className="col-span-3 text-right">Amount / Time</div>
+                </div>
+
+                <div className="space-y-3">
                   {filteredTransactions.length > 0 ? filteredTransactions.map((tx) => (
                     <button 
                       key={tx.id} 
                       onClick={() => setSelectedTx(tx)}
-                      className="w-full bg-black/40 border border-border p-4 rounded-xl flex items-center justify-between group hover:border-primary/30 transition-all text-left"
+                      className="w-full bg-black/40 border border-border p-4 rounded-xl hover:border-primary/30 transition-all text-left group"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-lg ${
-                          tx.type === 'receive' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'
-                        }`}>
-                          {tx.type === 'receive' ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-zinc-100 uppercase tracking-wider">
-                              {tx.type === 'receive' ? 'Received' : 'Sent'} {tx.asset}
-                            </span>
-                            <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                              tx.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500 animate-pulse'
-                            }`}>
-                              {tx.status}
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-zinc-500 font-mono mt-1">
-                            {tx.type === 'receive' ? 'From: ' : 'To: '} {tx.address}
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                        {/* Type Icon */}
+                        <div className="col-span-1">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            tx.type === 'receive' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'
+                          }`}>
+                            {tx.type === 'receive' ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                           </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-sm font-black ${
-                          tx.type === 'receive' ? 'text-emerald-500' : 'text-zinc-100'
-                        }`}>
-                          {tx.type === 'receive' ? '+' : '-'}{tx.amount} {tx.asset}
+
+                        {/* Details / Address */}
+                        <div className="col-span-4">
+                          <div className="text-xs font-bold text-zinc-100 uppercase tracking-wider mb-1">
+                            {tx.type === 'receive' ? 'Received' : 'Sent'}
+                          </div>
+                          <div className="text-[10px] text-zinc-500 font-mono truncate">
+                            {tx.address}
+                          </div>
                         </div>
-                        <div className="text-[9px] text-zinc-600 font-mono">{tx.timestamp}</div>
+
+                        {/* Asset */}
+                        <div className="col-span-2 hidden md:block">
+                          <span className="text-[10px] font-mono text-zinc-300 uppercase">{tx.asset}</span>
+                        </div>
+
+                        {/* Status */}
+                        <div className="col-span-2 hidden md:block">
+                          <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                            tx.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500 animate-pulse'
+                          }`}>
+                            {tx.status}
+                          </span>
+                        </div>
+
+                        {/* Amount / Time */}
+                        <div className="col-span-3 text-right">
+                          <div className={`text-sm font-black ${
+                            tx.type === 'receive' ? 'text-emerald-500' : 'text-zinc-100'
+                          }`}>
+                            {tx.type === 'receive' ? '+' : '-'}{tx.amount} {tx.asset}
+                          </div>
+                          <div className="text-[9px] text-zinc-600 font-mono mt-1">{tx.timestamp}</div>
+                        </div>
                       </div>
                     </button>
                   )) : (
