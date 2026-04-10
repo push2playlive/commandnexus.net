@@ -10,6 +10,10 @@ import { NetworkRadar } from './NetworkRadar';
 import { GoogleTrendsOracle } from './GoogleTrendsOracle';
 import { NexusWallet } from './NexusWallet';
 import { MarketDispatcher } from './MarketDispatcher';
+import { PricingPlans } from './PricingPlans';
+import { ProfilePage } from './ProfilePage';
+import { SettingsPage } from './SettingsPage';
+import { AccountPage } from './AccountPage';
 
 interface TacticalHubProps {
   activeTab: TabCategory;
@@ -101,7 +105,7 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
         );
       case 'INTEL MAP':
         return (
-          <div className="h-full flex flex-col items-center justify-center text-zinc-500 space-y-6">
+          <div className="flex flex-col items-center justify-center text-zinc-500 space-y-6 py-12">
             <div className="relative">
               <Globe className="w-24 h-24 opacity-20 text-blue-500" />
               <motion.div 
@@ -182,12 +186,12 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
         return <ShellConfigInput />;
       case 'SECURITY PULSE':
         return (
-          <div className="space-y-6 h-full flex flex-col">
+          <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-64 shrink-0">
               <NetworkRadar />
               <GoogleTrendsOracle />
             </div>
-            <div className="flex-1 min-h-0">
+            <div>
               <SecurityPulse events={securityEvents} blacklist={blacklist} />
             </div>
           </div>
@@ -196,15 +200,100 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
         return <NexusWallet />;
       case 'MARKET':
         return <MarketDispatcher />;
+      case 'PRICING':
+        return <PricingPlans />;
+      case 'PROFILE':
+        return <ProfilePage />;
+      case 'SETTINGS':
+        return <SettingsPage />;
+      case 'VAULT':
+        return <AccountPage />;
       default:
         return (
-          <div className="h-full flex flex-col items-center justify-center text-zinc-600 space-y-4">
-            <Terminal className="w-12 h-12 opacity-20" />
-            <p className="text-sm font-mono uppercase tracking-[0.4em]">Initialize Tactical Module</p>
-            <div className="flex gap-2">
-              <div className="w-1 h-1 bg-zinc-800 rounded-full animate-bounce" />
-              <div className="w-1 h-1 bg-zinc-800 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <div className="w-1 h-1 bg-zinc-800 rounded-full animate-bounce [animation-delay:0.4s]" />
+          <div className="space-y-8 py-4">
+            <div className="bg-primary/5 border border-primary/20 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Shield className="w-32 h-32" />
+              </div>
+              <div className="relative z-10">
+                <h2 className="text-3xl font-black text-zinc-100 tracking-[0.2em] uppercase mb-4">Command<span className="text-primary">Nexus</span> Alpha</h2>
+                <p className="text-zinc-400 font-mono text-xs leading-relaxed max-w-2xl mb-8 uppercase tracking-widest">
+                  Welcome to the Tactical Operations Center. Your network is currently under active monitoring. 
+                  All defensive systems are operational. Use the Control Deck below to navigate between tactical modules.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-black/40 border border-zinc-800 p-4 rounded-xl">
+                    <div className="text-[10px] text-zinc-500 font-mono uppercase mb-2">Threat Level</div>
+                    <div className="text-xl font-black text-red-500 uppercase tracking-tighter">Elevated</div>
+                  </div>
+                  <div className="bg-black/40 border border-zinc-800 p-4 rounded-xl">
+                    <div className="text-[10px] text-zinc-500 font-mono uppercase mb-2">Active Agents</div>
+                    <div className="text-xl font-black text-emerald-500 uppercase tracking-tighter">{agents.filter(a => a.status === 'Working').length} Units</div>
+                  </div>
+                  <div className="bg-black/40 border border-zinc-800 p-4 rounded-xl">
+                    <div className="text-[10px] text-zinc-500 font-mono uppercase mb-2">Network Load</div>
+                    <div className="text-xl font-black text-blue-500 uppercase tracking-tighter">42% Cap</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <Terminal className="w-5 h-5 text-zinc-500" />
+                  <h3 className="text-zinc-100 font-bold text-xs tracking-widest uppercase">Recent System Events</h3>
+                </div>
+                <div className="space-y-3 font-mono text-[10px]">
+                  <div className="flex justify-between text-emerald-500/80">
+                    <span>[OK] FIREWALL_SYNC_COMPLETE</span>
+                    <span>JUST NOW</span>
+                  </div>
+                  <div className="flex justify-between text-zinc-500">
+                    <span>[INFO] AGENT_AURA_REDEPLOYED</span>
+                    <span>2M AGO</span>
+                  </div>
+                  <div className="flex justify-between text-amber-500/80">
+                    <span>[WARN] LATENCY_SPIKE_REGION_NA</span>
+                    <span>5M AGO</span>
+                  </div>
+                  <div className="flex justify-between text-zinc-500">
+                    <span>[INFO] WALLET_ENCRYPTION_VERIFIED</span>
+                    <span>12M AGO</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <BarChart3 className="w-5 h-5 text-zinc-500" />
+                  <h3 className="text-zinc-100 font-bold text-xs tracking-widest uppercase">Operational Readiness</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[9px] font-mono text-zinc-500 uppercase">Defense Grid</div>
+                    <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="w-[92%] h-full bg-emerald-500" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[9px] font-mono text-zinc-500 uppercase">Market Penetration</div>
+                    <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="w-[45%] h-full bg-primary" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[9px] font-mono text-zinc-500 uppercase">Agent Efficiency</div>
+                    <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="w-[78%] h-full bg-purple-500" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/30 border border-zinc-800/50 p-6 rounded-xl text-center">
+              <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.3em]">System Standby // Awaiting Command</p>
             </div>
           </div>
         );
@@ -212,7 +301,7 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
   };
 
   return (
-    <div className="flex-1 mt-24 mb-24 mx-72 bg-zinc-900/30 border border-zinc-800/50 rounded-xl overflow-hidden backdrop-blur-sm flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+    <div className="flex-1 mt-12 mb-24 mx-72 bg-zinc-900/30 border border-zinc-800/50 rounded-xl overflow-hidden backdrop-blur-sm flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
       {/* Tactical Frame Details */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-zinc-700 to-transparent opacity-20" />
       <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-zinc-700 to-transparent opacity-10" />

@@ -46,9 +46,9 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Live Security Pulse */}
-      <div className="lg:col-span-2 bg-zinc-900/80 border border-zinc-800 p-6 rounded-xl flex flex-col">
+      <div className="lg:col-span-2 bg-zinc-900/80 border border-zinc-800 p-6 rounded-xl">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-500/10 rounded-lg">
@@ -64,7 +64,7 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-auto custom-scrollbar pr-2">
+        <div className="space-y-4">
           {events.map((event) => (
             <motion.div
               key={event.id}
@@ -121,7 +121,7 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
       </div>
 
       {/* Global Blacklist Vault */}
-      <div className="bg-zinc-900/80 border border-zinc-800 p-6 rounded-xl flex flex-col">
+      <div className="bg-zinc-900/80 border border-zinc-800 p-6 rounded-xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-zinc-800 rounded-lg">
             <Lock className="w-5 h-5 text-zinc-400" />
@@ -132,7 +132,7 @@ export const SecurityPulse: React.FC<SecurityPulseProps> = ({ events, blacklist 
           </div>
         </div>
 
-        <div className="flex-1 space-y-3 overflow-auto custom-scrollbar pr-2">
+        <div className="space-y-3">
           {blacklist.map((item) => (
             <div key={item.ip} className="bg-black/40 border border-zinc-800 p-3 rounded-lg">
               <div className="flex justify-between items-start mb-2">

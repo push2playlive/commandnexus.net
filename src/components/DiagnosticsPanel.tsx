@@ -14,7 +14,7 @@ const data = [
 
 export const DiagnosticsPanel: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Network Traffic */}
       <div className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-lg flex flex-col">
         <div className="flex items-center justify-between mb-4">
@@ -69,7 +69,7 @@ export const DiagnosticsPanel: React.FC = () => {
       </div>
 
       {/* Live Event Log */}
-      <div className="lg:col-span-2 bg-zinc-900/80 border border-zinc-800 p-4 rounded-lg flex flex-col h-64">
+      <div className="lg:col-span-2 bg-zinc-900/80 border border-zinc-800 p-4 rounded-lg flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-zinc-100 font-bold text-xs tracking-widest uppercase">Kernel Event Log</h3>
           <div className="flex gap-2">
@@ -78,7 +78,7 @@ export const DiagnosticsPanel: React.FC = () => {
             <div className="w-2 h-2 rounded-full bg-emerald-500" />
           </div>
         </div>
-        <div className="flex-1 font-mono text-[10px] text-zinc-500 overflow-auto custom-scrollbar space-y-1">
+        <div className="font-mono text-[10px] text-zinc-500 space-y-1">
           <p className="text-emerald-500/80">[OK] System initialization complete.</p>
           <p className="text-zinc-600">[INFO] Uplink established via SECURE_CHANNEL_01.</p>
           <p className="text-amber-500/80">[WARN] High dwell time detected on User_882.</p>

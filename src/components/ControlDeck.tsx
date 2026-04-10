@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, Settings, ShieldAlert, Wallet, Target } from 'lucide-react';
+import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, Settings, ShieldAlert, Wallet, Target, Crown, User, Lock, Terminal } from 'lucide-react';
 import { TabCategory } from '../types';
 import { motion } from 'motion/react';
 
@@ -18,7 +18,11 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({ activeTab, onTabChange
     { id: 'UTUBECHAT MARKET', icon: ShoppingCart, label: 'UTUBECHAT MARKET', led: 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]' },
     { id: 'WALLET', icon: Wallet, label: 'NEXUS WALLET', led: 'bg-primary shadow-[0_0_8px_rgba(6,182,212,0.8)]' },
     { id: 'MARKET', icon: Target, label: 'MARKET DISPATCH', led: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse' },
-    { id: 'SHELL CONFIG', icon: Settings, label: 'SHELL CONFIG', led: 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]' },
+    { id: 'PRICING', icon: Crown, label: 'COMMAND PLANS', led: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
+    { id: 'PROFILE', icon: User, label: 'GALACTIC PROFILE', led: 'bg-nexus-cyan shadow-[0_0_8px_rgba(0,255,204,0.8)]' },
+    { id: 'SETTINGS', icon: Settings, label: 'BRIDGE SETTINGS', led: 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]' },
+    { id: 'VAULT', icon: Lock, label: 'THE VAULT', led: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]' },
+    { id: 'SHELL CONFIG', icon: Terminal, label: 'SHELL CONFIG', led: 'bg-zinc-500 shadow-[0_0_8px_rgba(113,113,122,0.8)]' },
     { id: 'SECURITY PULSE', icon: ShieldAlert, label: 'SECURITY PULSE', led: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' },
   ];
 
@@ -29,7 +33,7 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({ activeTab, onTabChange
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`group relative flex flex-col items-center justify-center w-32 h-16 transition-all duration-200 border-x border-zinc-800/50 ${
+            className={`group relative flex flex-col items-center justify-center w-24 h-14 transition-all duration-200 border-x border-zinc-800/50 ${
               activeTab === tab.id ? 'bg-zinc-800/50' : 'hover:bg-zinc-800/30'
             }`}
           >

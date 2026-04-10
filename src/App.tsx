@@ -29,7 +29,7 @@ import {
 } from './constants';
 import { TabCategory, Threat, Agent, UserIntent, Trend, GlobalTrend, SalesMetric, SecurityEvent, BlacklistedIP } from './types';
 
-import { Share2 } from 'lucide-react';
+import { Share2, ShieldCheck } from 'lucide-react';
 
 import { useNexusCore } from './hooks/useNexusCore';
 
@@ -95,44 +95,58 @@ export default function App() {
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,hsl(var(--background))_80%)] pointer-events-none" />
 
       {/* Header / Logo */}
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center w-full max-w-7xl px-4">
-        <div className="flex items-center gap-3 bg-card/50 px-6 py-2 rounded-full border border-border backdrop-blur-md">
-          <img 
-            src={CLIENT_CONFIG.branding.logoUrl} 
-            alt="Nexus Logo" 
-            className="w-6 h-6 rounded-full border border-primary/50"
-            referrerPolicy="no-referrer"
-          />
-          <h1 className="text-xl font-black tracking-[0.3em] text-zinc-100 uppercase">
-            {core.loading ? (
-              <>Command<span className="text-primary">Nexus</span></>
-            ) : (
-              core.name
-            )}
-          </h1>
-          {!core.loading && (
-            <div className={`ml-4 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest border ${
-              core.env === 'production' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-              core.env === 'maintenance' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-              'bg-primary/10 text-primary border-primary/20'
-            }`}>
-              {core.env}
+      <div className="fixed top-6 left-8 z-50 flex flex-col items-start">
+        <div className="flex items-center gap-4 bg-black/60 px-6 py-3 rounded-2xl border border-zinc-800 backdrop-blur-xl shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-primary/30 border-t-primary animate-[spin_10s_linear_infinite]" />
+            <div className="absolute inset-1 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
+              <ShieldCheck className="w-6 h-6 text-primary drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
             </div>
-          )}
-          <button className="ml-2 p-1.5 hover:bg-zinc-800 rounded-full transition-colors text-zinc-500 hover:text-zinc-100">
+            {/* Circular Text Simulation */}
+            <div className="absolute -inset-2 pointer-events-none">
+              <svg className="w-16 h-16 animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100">
+                <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+                <text className="text-[8px] font-black uppercase tracking-[0.2em] fill-zinc-500">
+                  <textPath href="#circlePath" startOffset="0%">COMMANDER NEXUS â€¢ COMMANDER NEXUS â€¢</textPath>
+                </text>
+              </svg>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-black tracking-[0.3em] text-zinc-100 uppercase">
+              {core.loading ? (
+                <>Command<span className="text-primary">Nexus</span></>
+              ) : (
+                core.name
+              )}
+            </h1>
+            <div className="flex items-center gap-2">
+              <div className="text-[8px] font-mono text-zinc-600 tracking-[0.3em] uppercase">Tactical Operations Center</div>
+              {!core.loading && (
+                <div className={`px-1.5 py-0.5 rounded-[4px] text-[7px] font-bold uppercase tracking-widest border ${
+                  core.env === 'production' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                  core.env === 'maintenance' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                  'bg-primary/10 text-primary border-primary/20'
+                }`}>
+                  {core.env}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="h-8 w-px bg-zinc-800 mx-2" />
+          <button className="p-2 hover:bg-zinc-800 rounded-xl transition-colors text-zinc-500 hover:text-zinc-100">
             <Share2 className="w-4 h-4" />
           </button>
         </div>
-        <div className="mt-2 text-[8px] font-mono text-zinc-600 tracking-[0.5em] uppercase">Tactical Operations Center</div>
       </div>
 
       {/* Corner Monitors */}
-      <CornerMonitor title="Threat Matrix" position="top-left">
-        <ThreatMatrixContent threats={threats} />
+      <CornerMonitor title="Global Trends" position="top-left">
+        <GlobalTrendsContent trends={globalTrends} />
       </CornerMonitor>
 
-      <CornerMonitor title="Global Trends" position="mid-left">
-        <GlobalTrendsContent trends={globalTrends} />
+      <CornerMonitor title="Threat Matrix" position="mid-left">
+        <ThreatMatrixContent threats={threats} />
       </CornerMonitor>
 
       <CornerMonitor title="Agent Pulse" position="bottom-left">

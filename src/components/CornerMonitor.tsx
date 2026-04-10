@@ -9,8 +9,8 @@ interface CornerMonitorProps {
 
 export const CornerMonitor: React.FC<CornerMonitorProps> = ({ title, position, children }) => {
   const positionClasses = {
-    'top-left': 'top-4 left-4',
-    'top-right': 'top-4 right-4',
+    'top-left': 'top-24 left-4',
+    'top-right': 'top-24 right-4',
     'mid-left': 'top-1/2 -translate-y-1/2 left-4',
     'mid-right': 'top-1/2 -translate-y-1/2 right-4',
     'bottom-left': 'bottom-24 left-4',

@@ -46,7 +46,7 @@ export const MarketDispatcher: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar pr-2 space-y-6">
+    <div className="h-full pr-2 space-y-6">
       {/* Header Section */}
       <div className="bg-zinc-900/80 border border-zinc-800 p-6 rounded-xl">
         <div className="flex items-center justify-between mb-6">

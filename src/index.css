@@ -3,6 +3,34 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-nexus-cyan: #00ffcc;
+  --color-nexus-dark: #0a0a0a;
+  --color-nexus-border: #333;
+}
+
+.galaxy-bg { 
+  background: radial-gradient(circle at center, #111 0%, #000 100%); 
+}
+
+.shadow-shield {
+  border: 1px solid var(--color-nexus-border);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.nexus-input, .nexus-slider {
+  background: #1a1a1a;
+  border: 1px solid var(--color-nexus-border);
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 5px;
+}
+
+.nexus-input:focus { 
+  border-color: var(--color-nexus-cyan); 
+  outline: none; 
 }
 
 :root {
