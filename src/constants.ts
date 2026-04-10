@@ -1,9 +1,9 @@
 import { Agent, Threat, UserIntent, Trend, GlobalTrend, SalesMetric, SecurityEvent, BlacklistedIP } from './types';
 
 export const INITIAL_AGENTS: Agent[] = [
-  { id: '1', name: 'Agent Aura', status: 'Working', shift: '0000-0800', task: 'Repair broken links' },
-  { id: '2', name: 'Agent Blaze', status: 'Idle', shift: '0800-1600', task: 'Monitor traffic' },
-  { id: '3', name: 'Agent Cipher', status: 'Dispatched', shift: '1600-0000', task: 'Security Audit' },
+  { id: '1', name: 'Agent Aura', status: 'Working', shift: '0000-0800', task: 'Repair broken links', priority: 3 },
+  { id: '2', name: 'Agent Blaze', status: 'Idle', shift: '0800-1600', task: 'Monitor traffic', priority: 1 },
+  { id: '3', name: 'Agent Cipher', status: 'Dispatched', shift: '1600-0000', task: 'Security Audit', priority: 5 },
 ];
 
 export const INITIAL_THREATS: Threat[] = [

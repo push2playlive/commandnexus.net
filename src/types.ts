@@ -6,6 +6,7 @@ export interface Agent {
   status: AgentStatus;
   shift: string;
   task: string;
+  priority: number; // 1-5, 5 is highest
 }
 
 export interface Threat {

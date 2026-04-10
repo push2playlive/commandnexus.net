@@ -23,6 +23,7 @@ interface TacticalHubProps {
   securityEvents: SecurityEvent[];
   blacklist: BlacklistedIP[];
   onDispatch: (agentId: string) => void;
+  onUpdateAgent: (agentId: string, updates: Partial<Agent>) => void;
 }
 
 export const TacticalHub: React.FC<TacticalHubProps> = ({ 
@@ -32,7 +33,8 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
   trends, 
   securityEvents,
   blacklist,
-  onDispatch 
+  onDispatch,
+  onUpdateAgent
 }) => {
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(false);
   const [triggerThreatType, setTriggerThreatType] = useState('SQL Injection');
@@ -47,13 +49,16 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
     if (latestThreat.id !== lastProcessedThreatId.current && latestThreat.type.toLowerCase().includes(triggerThreatType.toLowerCase())) {
       lastProcessedThreatId.current = latestThreat.id;
       
-      const targetAgent = agents.find(a => a.status !== 'Dispatched');
+      // Pick highest priority available agent
+      const targetAgent = [...agents]
+        .filter(a => a.status !== 'Dispatched')
+        .sort((a, b) => b.priority - a.priority)[0];
       
       if (targetAgent) {
         onDispatch(targetAgent.id);
         const log = {
           id: Math.random().toString(36).substr(2, 9),
-          message: `[AUTO] ${targetAgent.name} -> ${latestThreat.type} (${latestThreat.source})`,
+          message: `[AUTO] ${targetAgent.name} (P${targetAgent.priority}) -> ${latestThreat.type}`,
           timestamp: new Date().toLocaleTimeString()
         };
         setDispatchLogs(prev => [log, ...prev].slice(0, 5));
@@ -125,7 +130,7 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
                   />
                 </div>
                 <div className="text-[9px] text-zinc-500 font-mono uppercase italic leading-relaxed">
-                  System will automatically assign available units to match the specified threat signature in real-time.
+                  System will automatically assign available units to match the specified threat signature in real-time. <strong>Priority-weighted dispatch active.</strong>
                 </div>
               </div>
 
@@ -145,7 +150,7 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              {agents.map((agent) => (
+              {[...agents].sort((a, b) => b.priority - a.priority).map((agent) => (
                 <div key={agent.id} className="bg-zinc-900/50 border border-zinc-800 p-4 rounded-lg flex items-center justify-between group hover:border-emerald-500/30 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -155,26 +160,50 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
                       <Cpu className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-zinc-100 font-bold text-sm">{agent.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-zinc-100 font-bold text-sm">{agent.name}</h3>
+                        <span className="text-[8px] px-1.5 py-0.5 bg-zinc-800 text-zinc-400 rounded border border-zinc-700 font-mono">P{agent.priority}</span>
+                      </div>
                       <p className="text-zinc-500 text-xs font-mono">SHIFT: {agent.shift} | TASK: {agent.task}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <span className={`text-[10px] font-bold uppercase ${
-                        agent.status === 'Working' ? 'text-emerald-400' : 
-                        agent.status === 'Dispatched' ? 'text-blue-400' : 'text-zinc-500'
-                      }`}>
-                        {agent.status}
-                      </span>
+                  <div className="flex items-center gap-6">
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[8px] text-zinc-600 font-mono uppercase">Priority Level</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((p) => (
+                          <button
+                            key={p}
+                            onClick={() => onUpdateAgent(agent.id, { priority: p })}
+                            className={`w-4 h-4 rounded-sm text-[8px] font-bold transition-all ${
+                              agent.priority === p 
+                                ? 'bg-primary text-primary-foreground scale-110' 
+                                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <button 
-                      onClick={() => onDispatch(agent.id)}
-                      disabled={agent.status === 'Dispatched'}
-                      className="px-4 py-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-100 text-[10px] font-bold rounded border border-zinc-700 uppercase transition-colors"
-                    >
-                      Dispatch
-                    </button>
+                    <div className="h-8 w-px bg-zinc-800" />
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <span className={`text-[10px] font-bold uppercase ${
+                          agent.status === 'Working' ? 'text-emerald-400' : 
+                          agent.status === 'Dispatched' ? 'text-blue-400' : 'text-zinc-500'
+                        }`}>
+                          {agent.status}
+                        </span>
+                      </div>
+                      <button 
+                        onClick={() => onDispatch(agent.id)}
+                        disabled={agent.status === 'Dispatched'}
+                        className="px-4 py-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-100 text-[10px] font-bold rounded border border-zinc-700 uppercase transition-colors"
+                      >
+                        Dispatch
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

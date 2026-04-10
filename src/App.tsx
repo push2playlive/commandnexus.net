@@ -88,6 +88,12 @@ export default function App() {
     }, 10000);
   };
 
+  const handleUpdateAgent = (agentId: string, updates: Partial<Agent>) => {
+    setAgents(prev => prev.map(a => 
+      a.id === agentId ? { ...a, ...updates } : a
+    ));
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans overflow-hidden flex flex-col">
       {/* Background Grid Effect */}
@@ -175,6 +181,7 @@ export default function App() {
           securityEvents={securityEvents}
           blacklist={blacklist}
           onDispatch={handleDispatch}
+          onUpdateAgent={handleUpdateAgent}
         />
         <PowerTools />
       </div>
