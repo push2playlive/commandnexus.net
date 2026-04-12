@@ -25,17 +25,20 @@ import {
   INITIAL_SALES,
   INITIAL_SECURITY_EVENTS,
   INITIAL_BLACKLIST,
+  INITIAL_CLIENTS,
   CLIENT_CONFIG
 } from './constants';
-import { TabCategory, Threat, Agent, UserIntent, Trend, GlobalTrend, SalesMetric, SecurityEvent, BlacklistedIP } from './types';
+import { TabCategory, Threat, Agent, UserIntent, Trend, GlobalTrend, SalesMetric, SecurityEvent, BlacklistedIP, Client } from './types';
 
-import { Share2, ShieldCheck } from 'lucide-react';
+import { Share2, ShieldCheck, ChevronRight } from 'lucide-react';
 
 import { useNexusCore } from './hooks/useNexusCore';
 
 export default function App() {
   const core = useNexusCore();
   const [activeTab, setActiveTab] = useState<TabCategory>('THREAT SCAN');
+  const [activeClient, setActiveClient] = useState<Client>(INITIAL_CLIENTS[0]);
+  const [isGhostMenuOpen, setIsGhostMenuOpen] = useState(false);
   const [threats, setThreats] = useState<Threat[]>(INITIAL_THREATS);
   const [agents, setAgents] = useState<Agent[]>(INITIAL_AGENTS);
   const [intents, setIntents] = useState<UserIntent[]>(INITIAL_INTENTS);
@@ -44,6 +47,40 @@ export default function App() {
   const [salesMetrics] = useState<SalesMetric[]>(INITIAL_SALES);
   const [securityEvents] = useState<SecurityEvent[]>(INITIAL_SECURITY_EVENTS);
   const [blacklist] = useState<BlacklistedIP[]>(INITIAL_BLACKLIST);
+
+  // Dynamic Theming
+  useEffect(() => {
+    document.documentElement.style.setProperty('--primary', activeClient.color);
+    // Also update a hex version for non-hsl usage if needed, but Tailwind uses hsl for --primary
+    // Let's convert hex to hsl for the CSS variable
+    const hexToHsl = (hex: string) => {
+      let r = 0, g = 0, b = 0;
+      if (hex.length === 4) {
+        r = parseInt(hex[1] + hex[1], 16);
+        g = parseInt(hex[2] + hex[2], 16);
+        b = parseInt(hex[3] + hex[3], 16);
+      } else if (hex.length === 7) {
+        r = parseInt(hex.slice(1, 3), 16);
+        g = parseInt(hex.slice(3, 5), 16);
+        b = parseInt(hex.slice(5, 7), 16);
+      }
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0, l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+    };
+    document.documentElement.style.setProperty('--primary', hexToHsl(activeClient.color));
+  }, [activeClient]);
 
   // Simulate live data
   useEffect(() => {
@@ -94,6 +131,17 @@ export default function App() {
     ));
   };
 
+  const handleAddThreat = (type: string, source: string) => {
+    const newThreat: Threat = {
+      id: Math.random().toString(36).substr(2, 9),
+      type,
+      source,
+      timestamp: new Date().toLocaleTimeString(),
+      status: 'monitored'
+    };
+    setThreats(prev => [newThreat, ...prev.slice(0, 4)]);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans overflow-hidden flex flex-col">
       {/* Background Grid Effect */}
@@ -113,7 +161,7 @@ export default function App() {
               <svg className="w-16 h-16 animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100">
                 <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
                 <text className="text-[8px] font-black uppercase tracking-[0.2em] fill-zinc-500">
-                  <textPath href="#circlePath" startOffset="0%">COMMANDER NEXUS â€¢ COMMANDER NEXUS â€¢</textPath>
+                  <textPath href="#circlePath" startOffset="0%">COMMANDER NEXUS • COMMANDER NEXUS •</textPath>
                 </text>
               </svg>
             </div>
@@ -139,6 +187,15 @@ export default function App() {
               )}
             </div>
           </div>
+          <div className="h-8 w-px bg-zinc-800 mx-2" />
+          
+          {/* Breadcrumb Uplink */}
+          <div className="flex items-center gap-2 px-2">
+            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Nexus</span>
+            <ChevronRight className="w-3 h-3 text-zinc-700" />
+            <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-widest">{activeTab}</span>
+          </div>
+
           <div className="h-8 w-px bg-zinc-800 mx-2" />
           <button className="p-2 hover:bg-zinc-800 rounded-xl transition-colors text-zinc-500 hover:text-zinc-100">
             <Share2 className="w-4 h-4" />
@@ -171,24 +228,39 @@ export default function App() {
         <TrendAlgorithmContent trends={trends} />
       </CornerMonitor>
 
-      {/* Main Tactical Hub */}
-      <div className="relative flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 z-10">
-        <TacticalHub 
-          activeTab={activeTab} 
-          threats={threats} 
-          agents={agents} 
-          trends={trends}
-          securityEvents={securityEvents}
-          blacklist={blacklist}
-          onDispatch={handleDispatch}
-          onUpdateAgent={handleUpdateAgent}
-        />
-        <PowerTools />
-      </div>
+      {/* Main Tactical Hub - Center Viewport */}
+      <main className="relative flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 z-10 mt-28 mb-24 overflow-hidden">
+        <div className="center-viewport pr-4 h-full">
+          <TacticalHub 
+            activeTab={activeTab} 
+            threats={threats} 
+            agents={agents} 
+            trends={trends}
+            securityEvents={securityEvents}
+            blacklist={blacklist}
+            onDispatch={handleDispatch}
+            onUpdateAgent={handleUpdateAgent}
+            activeClient={activeClient}
+            onAddThreat={handleAddThreat}
+          />
+          <PowerTools />
+        </div>
+      </main>
 
       {/* Bottom Control Deck */}
       <div className="w-full max-w-7xl mx-auto px-4 z-20">
-        <ControlDeck activeTab={activeTab} onTabChange={setActiveTab} />
+        <ControlDeck 
+          activeTab={activeTab} 
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setIsGhostMenuOpen(false);
+          }} 
+          isGhostMenuOpen={isGhostMenuOpen}
+          onToggleGhostMenu={() => setIsGhostMenuOpen(!isGhostMenuOpen)}
+          activeClient={activeClient}
+          clients={INITIAL_CLIENTS}
+          onClientChange={setActiveClient}
+        />
       </div>
 
       {/* Scanline Effect */}

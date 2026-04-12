@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TabCategory, Threat, Agent, Trend, SecurityEvent, BlacklistedIP } from '../types';
-import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, AlertTriangle, Zap, User, Terminal, Globe, BarChart3, Settings } from 'lucide-react';
+import { TabCategory, Threat, Agent, Trend, SecurityEvent, BlacklistedIP, AgentStatus, Client } from '../types';
+import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, AlertTriangle, Zap, User, Terminal, Globe, BarChart3, Settings, Filter } from 'lucide-react';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
+import { UptimeMonitor } from './UptimeMonitor';
 
 import { ShellConfigInput } from './ShellConfigInput';
 import { SecurityPulse } from './SecurityPulse';
@@ -24,6 +25,8 @@ interface TacticalHubProps {
   blacklist: BlacklistedIP[];
   onDispatch: (agentId: string) => void;
   onUpdateAgent: (agentId: string, updates: Partial<Agent>) => void;
+  activeClient: Client;
+  onAddThreat: (type: string, source: string) => void;
 }
 
 export const TacticalHub: React.FC<TacticalHubProps> = ({ 
@@ -34,10 +37,13 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
   securityEvents,
   blacklist,
   onDispatch,
-  onUpdateAgent
+  onUpdateAgent,
+  activeClient,
+  onAddThreat
 }) => {
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(false);
   const [triggerThreatType, setTriggerThreatType] = useState('SQL Injection');
+  const [statusFilter, setStatusFilter] = useState<AgentStatus | 'All'>('All');
   const [dispatchLogs, setDispatchLogs] = useState<{id: string, message: string, timestamp: string}[]>([]);
   const lastProcessedThreatId = useRef<string | null>(null);
 
@@ -98,6 +104,10 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
           </div>
         );
       case 'AGENT COMMAND':
+        const filteredAgents = [...agents]
+          .filter(a => statusFilter === 'All' ? true : a.status === statusFilter)
+          .sort((a, b) => b.priority - a.priority);
+
         return (
           <div className="space-y-4">
             {/* Auto-Dispatch Configuration */}
@@ -149,8 +159,33 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
               )}
             </div>
 
+            {/* Status Filters */}
+            <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/50 p-3 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 bg-zinc-800 rounded-lg">
+                  <Filter className="w-3.5 h-3.5 text-zinc-400" />
+                </div>
+                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Status Filter</span>
+              </div>
+              <div className="flex bg-black/40 p-1 rounded-lg border border-zinc-800">
+                {['All', 'Working', 'Idle', 'Dispatched'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status as any)}
+                    className={`px-3 py-1 text-[9px] font-bold uppercase rounded-md transition-all ${
+                      statusFilter === status 
+                        ? 'bg-zinc-800 text-zinc-100 shadow-sm' 
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-4">
-              {[...agents].sort((a, b) => b.priority - a.priority).map((agent) => (
+              {filteredAgents.map((agent) => (
                 <div key={agent.id} className="bg-zinc-900/50 border border-zinc-800 p-4 rounded-lg flex items-center justify-between group hover:border-emerald-500/30 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -290,7 +325,56 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
           </div>
         );
       case 'SHELL CONFIG':
-        return <ShellConfigInput />;
+        return (
+          <div className="space-y-6">
+            <ShellConfigInput />
+            
+            <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl shadow-shield">
+              <div className="flex items-center gap-3 mb-6">
+                <Zap className="w-5 h-5 text-primary" />
+                <h3 className="text-zinc-100 font-bold text-xs tracking-widest uppercase">Webhook Simulator</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <p className="text-[10px] text-zinc-500 font-mono leading-relaxed">
+                    Test your external integrations by triggering a simulated threat ping. This mimics an external sensor detecting an anomaly on the target domain.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      onClick={() => onAddThreat('DDoS Packet', '8.8.8.8')}
+                      className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 text-[10px] font-bold uppercase rounded transition-all"
+                    >
+                      Simulate DDoS Ping
+                    </button>
+                    <button 
+                      onClick={() => onAddThreat('SQL Injection', '1.2.3.4')}
+                      className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 text-[10px] font-bold uppercase rounded transition-all"
+                    >
+                      Simulate SQLi Ping
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-black/40 p-4 rounded-lg border border-zinc-800">
+                  <div className="text-[9px] text-zinc-600 font-mono uppercase mb-2">Webhook Endpoint</div>
+                  <div className="bg-zinc-800/50 p-2 rounded text-[10px] font-mono text-primary break-all">
+                    https://api.commandnexus.io/v1/hooks/{activeClient.id}
+                  </div>
+                  <div className="mt-4 text-[9px] text-zinc-600 font-mono uppercase mb-2">Payload Example</div>
+                  <pre className="text-[8px] text-zinc-400 font-mono bg-black/60 p-2 rounded overflow-x-auto">
+{`{
+  "event": "threat_detected",
+  "type": "SQL_INJECTION",
+  "source": "1.2.3.4",
+  "client_id": "${activeClient.id}"
+}`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       case 'SECURITY PULSE':
         return (
           <div className="space-y-6">
@@ -315,6 +399,8 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
         return <SettingsPage />;
       case 'VAULT':
         return <AccountPage />;
+      case 'UPTIME MONITOR':
+        return <UptimeMonitor activeClient={activeClient} />;
       default:
         return (
           <div className="space-y-8 py-4">

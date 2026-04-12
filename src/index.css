@@ -78,16 +78,31 @@
     scrollbar-width: none;
   }
   
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* Custom Sovereign Scrollbar for the Center Panel */
+  .center-viewport::-webkit-scrollbar {
+    width: 4px; /* Ultra-thin for that high-tech look */
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
-  ::-webkit-scrollbar-thumb {
-    background: #ffffff1a;
-    border-radius: 3px;
+
+  .center-viewport:hover::-webkit-scrollbar {
+    opacity: 1;
   }
-  ::-webkit-scrollbar-track {
-    background: #ffffff05;
+
+  .center-viewport::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #00f3ff, #7000ff);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  }
+
+  .center-viewport::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .center-viewport {
+    overflow-y: auto;
+    height: calc(100vh - 208px); /* Adjusts for mt-28 (112px) and mb-24 (96px) */
+    scrollbar-gutter: stable; /* Prevents layout jump when scrollbar appears */
   }
 
   ::selection {

@@ -1,9 +1,15 @@
-import { Agent, Threat, UserIntent, Trend, GlobalTrend, SalesMetric, SecurityEvent, BlacklistedIP } from './types';
+import { Agent, Threat, UserIntent, Trend, GlobalTrend, SalesMetric, SecurityEvent, BlacklistedIP, Client } from './types';
 
 export const INITIAL_AGENTS: Agent[] = [
   { id: '1', name: 'Agent Aura', status: 'Working', shift: '0000-0800', task: 'Repair broken links', priority: 3 },
   { id: '2', name: 'Agent Blaze', status: 'Idle', shift: '0800-1600', task: 'Monitor traffic', priority: 1 },
   { id: '3', name: 'Agent Cipher', status: 'Dispatched', shift: '1600-0000', task: 'Security Audit', priority: 5 },
+];
+
+export const INITIAL_CLIENTS: Client[] = [
+  { id: '1', name: 'Client Alpha', domain: 'alpha-ecommerce.com', color: '#06b6d4', status: 'Active', uptime: 99.9 },
+  { id: '2', name: 'Client Beta', domain: 'beta-web3-portal.io', color: '#f59e0b', status: 'Under Attack', uptime: 94.2 },
+  { id: '3', name: 'Client Gamma', domain: 'gamma-saas.net', color: '#10b981', status: 'Maintenance', uptime: 100 },
 ];
 
 export const INITIAL_THREATS: Threat[] = [

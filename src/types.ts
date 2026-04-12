@@ -1,5 +1,14 @@
 export type AgentStatus = 'Working' | 'Idle' | 'Dispatched';
 
+export interface Client {
+  id: string;
+  name: string;
+  domain: string;
+  color: string;
+  status: 'Active' | 'Under Attack' | 'Maintenance';
+  uptime: number;
+}
+
 export interface Agent {
   id: string;
   name: string;
@@ -68,4 +77,4 @@ export interface NexusConfig {
   google_id: string;
 }
 
-export type TabCategory = 'THREAT SCAN' | 'INTEL MAP' | 'USER FEEDBACK' | 'AGENT COMMAND' | 'DIAGNOSTICS' | 'UTUBECHAT MARKET' | 'SHELL CONFIG' | 'SECURITY PULSE' | 'WALLET' | 'MARKET' | 'PRICING' | 'PROFILE' | 'SETTINGS' | 'VAULT';
+export type TabCategory = 'THREAT SCAN' | 'INTEL MAP' | 'USER FEEDBACK' | 'AGENT COMMAND' | 'DIAGNOSTICS' | 'UTUBECHAT MARKET' | 'SHELL CONFIG' | 'SECURITY PULSE' | 'WALLET' | 'MARKET' | 'PRICING' | 'PROFILE' | 'SETTINGS' | 'VAULT' | 'UPTIME MONITOR';
