@@ -4,6 +4,7 @@ import { TabCategory, Threat, Agent, Trend, SecurityEvent, BlacklistedIP, AgentS
 import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, AlertTriangle, Zap, User, Terminal, Globe, BarChart3, Settings, Filter } from 'lucide-react';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { UptimeMonitor } from './UptimeMonitor';
+import { ExecutiveSuite } from './ExecutiveSuite';
 
 import { ShellConfigInput } from './ShellConfigInput';
 import { SecurityPulse } from './SecurityPulse';
@@ -27,6 +28,7 @@ interface TacticalHubProps {
   onUpdateAgent: (agentId: string, updates: Partial<Agent>) => void;
   activeClient: Client;
   onAddThreat: (type: string, source: string) => void;
+  isMasterOverride: boolean;
 }
 
 export const TacticalHub: React.FC<TacticalHubProps> = ({ 
@@ -39,7 +41,8 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
   onDispatch,
   onUpdateAgent,
   activeClient,
-  onAddThreat
+  onAddThreat,
+  isMasterOverride
 }) => {
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(false);
   const [triggerThreatType, setTriggerThreatType] = useState('SQL Injection');
@@ -401,6 +404,8 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
         return <AccountPage />;
       case 'UPTIME MONITOR':
         return <UptimeMonitor activeClient={activeClient} />;
+      case 'EXECUTIVE SUITE':
+        return <ExecutiveSuite />;
       default:
         return (
           <div className="space-y-8 py-4">

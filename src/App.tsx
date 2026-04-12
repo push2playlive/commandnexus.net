@@ -39,6 +39,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabCategory>('THREAT SCAN');
   const [activeClient, setActiveClient] = useState<Client>(INITIAL_CLIENTS[0]);
   const [isGhostMenuOpen, setIsGhostMenuOpen] = useState(false);
+  const [isMasterOverride, setIsMasterOverride] = useState(false);
   const [threats, setThreats] = useState<Threat[]>(INITIAL_THREATS);
   const [agents, setAgents] = useState<Agent[]>(INITIAL_AGENTS);
   const [intents, setIntents] = useState<UserIntent[]>(INITIAL_INTENTS);
@@ -79,8 +80,16 @@ export default function App() {
       }
       return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
     };
-    document.documentElement.style.setProperty('--primary', hexToHsl(activeClient.color));
-  }, [activeClient]);
+    
+    const baseColor = isMasterOverride ? '#10b981' : activeClient.color;
+    document.documentElement.style.setProperty('--primary', hexToHsl(baseColor));
+    
+    if (isMasterOverride) {
+      document.documentElement.style.setProperty('--accent', hexToHsl('#064e3b')); // Deep forest green
+    } else {
+      document.documentElement.style.setProperty('--accent', '262 83% 58%'); // Reset to default accent
+    }
+  }, [activeClient, isMasterOverride]);
 
   // Simulate live data
   useEffect(() => {
@@ -160,8 +169,10 @@ export default function App() {
             <div className="absolute -inset-2 pointer-events-none">
               <svg className="w-16 h-16 animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100">
                 <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
-                <text className="text-[8px] font-black uppercase tracking-[0.2em] fill-zinc-500">
-                  <textPath href="#circlePath" startOffset="0%">COMMANDER NEXUS • COMMANDER NEXUS •</textPath>
+                <text className={`text-[8px] font-black uppercase tracking-[0.2em] transition-colors duration-500 ${isMasterOverride ? 'fill-emerald-500' : 'fill-zinc-500'}`}>
+                  <textPath href="#circlePath" startOffset="0%">
+                    {isMasterOverride ? 'SENSEI PROTOCOL • NEXUS ACADEMY •' : 'COMMANDER NEXUS • COMMANDER NEXUS •'}
+                  </textPath>
                 </text>
               </svg>
             </div>
@@ -191,9 +202,21 @@ export default function App() {
           
           {/* Breadcrumb Uplink */}
           <div className="flex items-center gap-2 px-2">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Nexus</span>
+            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+              {isMasterOverride ? 'MASTER_BRIDGE' : 'Nexus'}
+            </span>
             <ChevronRight className="w-3 h-3 text-zinc-700" />
-            <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-widest">{activeTab}</span>
+            {isMasterOverride && (
+              <>
+                <span className="text-[10px] font-mono text-emerald-500 font-bold uppercase tracking-widest">SUPER_ADMIN</span>
+                <ChevronRight className="w-3 h-3 text-zinc-700" />
+              </>
+            )}
+            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">[{activeClient.name}]</span>
+            <ChevronRight className="w-3 h-3 text-zinc-700" />
+            <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${isMasterOverride ? 'text-emerald-500' : 'text-primary'}`}>
+              {activeTab}
+            </span>
           </div>
 
           <div className="h-8 w-px bg-zinc-800 mx-2" />
@@ -242,6 +265,7 @@ export default function App() {
             onUpdateAgent={handleUpdateAgent}
             activeClient={activeClient}
             onAddThreat={handleAddThreat}
+            isMasterOverride={isMasterOverride}
           />
           <PowerTools />
         </div>
@@ -260,6 +284,8 @@ export default function App() {
           activeClient={activeClient}
           clients={INITIAL_CLIENTS}
           onClientChange={setActiveClient}
+          isMasterOverride={isMasterOverride}
+          onToggleMasterOverride={() => setIsMasterOverride(!isMasterOverride)}
         />
       </div>
 

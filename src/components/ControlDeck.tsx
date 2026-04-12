@@ -11,6 +11,8 @@ interface ControlDeckProps {
   activeClient: Client;
   clients: Client[];
   onClientChange: (client: Client) => void;
+  isMasterOverride: boolean;
+  onToggleMasterOverride: () => void;
 }
 
 export const ControlDeck: React.FC<ControlDeckProps> = ({ 
@@ -20,7 +22,9 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
   onToggleGhostMenu,
   activeClient,
   clients,
-  onClientChange
+  onClientChange,
+  isMasterOverride,
+  onToggleMasterOverride
 }) => {
   const primaryTabs: { id: TabCategory; icon: any; label: string; led: string }[] = [
     { id: 'THREAT SCAN', icon: Shield, label: 'THREAT SCAN', led: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse' },
@@ -35,6 +39,7 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
     { id: 'PROFILE', icon: User, label: 'GALACTIC PROFILE', led: 'bg-nexus-cyan shadow-[0_0_8px_rgba(0,255,204,0.8)]' },
     { id: 'SETTINGS', icon: Settings, label: 'BRIDGE SETTINGS', led: 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]' },
     { id: 'VAULT', icon: Lock, label: 'THE VAULT', led: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]' },
+    { id: 'EXECUTIVE SUITE', icon: Crown, label: 'EXECUTIVE SUITE', led: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' },
     { id: 'UPTIME MONITOR', icon: Activity, label: 'UPTIME MONITOR', led: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' },
     { id: 'SHELL CONFIG', icon: Terminal, label: 'SHELL CONFIG', led: 'bg-zinc-500 shadow-[0_0_8px_rgba(113,113,122,0.8)]' },
     { id: 'USER FEEDBACK', icon: MessageSquare, label: 'USER FEEDBACK', led: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]' },
@@ -64,6 +69,27 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
               >
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Master Override Toggle */}
+            <div className="mb-8 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-emerald-500 font-mono uppercase tracking-widest font-bold">Master Override</span>
+                  <span className="text-[8px] text-zinc-500 font-mono uppercase">Deep Meta View</span>
+                </div>
+                <button 
+                  onClick={onToggleMasterOverride}
+                  className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
+                    isMasterOverride ? 'bg-emerald-500' : 'bg-zinc-800'
+                  }`}
+                >
+                  <motion.div 
+                    animate={{ x: isMasterOverride ? 26 : 2 }}
+                    className="absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-lg"
+                  />
+                </button>
+              </div>
             </div>
 
             {/* Target Uplink (Client Switcher) */}
@@ -183,6 +209,28 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
             <span className={`text-[9px] font-bold tracking-tighter transition-colors ${isGhostMenuOpen ? 'text-zinc-100' : 'text-zinc-500 group-hover:text-zinc-300'}`}>
               GHOST MENU
             </span>
+          </button>
+
+          <div className="h-10 w-px bg-zinc-800 mx-2" />
+
+          {/* Immediate Master Override Toggle */}
+          <button
+            onClick={onToggleMasterOverride}
+            className={`group relative flex flex-col items-center justify-center w-24 h-14 transition-all duration-200 border-x border-zinc-800/50 ${
+              isMasterOverride ? 'bg-emerald-500/10' : 'hover:bg-zinc-800/30'
+            }`}
+          >
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 transition-all duration-500 ${isMasterOverride ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)]' : 'bg-zinc-700'}`} />
+            <Crown className={`w-5 h-5 mb-1 transition-colors duration-500 ${isMasterOverride ? 'text-emerald-500' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+            <span className={`text-[9px] font-bold tracking-tighter transition-colors duration-500 ${isMasterOverride ? 'text-emerald-500' : 'text-zinc-500 group-hover:text-zinc-300'}`}>
+              OVERRIDE
+            </span>
+            {isMasterOverride && (
+              <motion.div 
+                layoutId="overrideActiveGlow"
+                className="absolute inset-0 bg-emerald-500/5 pointer-events-none"
+              />
+            )}
           </button>
         </div>
         

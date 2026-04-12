@@ -90,9 +90,9 @@
   }
 
   .center-viewport::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #00f3ff, #7000ff);
+    background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--accent)));
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    box-shadow: 0 0 10px hsla(var(--primary), 0.5);
   }
 
   .center-viewport::-webkit-scrollbar-track {
