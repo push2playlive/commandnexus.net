@@ -286,6 +286,8 @@ export default function App() {
           onClientChange={setActiveClient}
           isMasterOverride={isMasterOverride}
           onToggleMasterOverride={() => setIsMasterOverride(!isMasterOverride)}
+          agents={agents}
+          onUpdateAgent={handleUpdateAgent}
         />
       </div>
 

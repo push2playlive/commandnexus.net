@@ -1,6 +1,6 @@
 import React from 'react';
 import { Shield, Map, MessageSquare, Cpu, Activity, ShoppingCart, Settings, ShieldAlert, Wallet, Target, Crown, User, Lock, Terminal, MoreHorizontal, X, Globe, Zap } from 'lucide-react';
-import { TabCategory, Client } from '../types';
+import { TabCategory, Client, Agent } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ControlDeckProps {
@@ -13,6 +13,8 @@ interface ControlDeckProps {
   onClientChange: (client: Client) => void;
   isMasterOverride: boolean;
   onToggleMasterOverride: () => void;
+  agents: Agent[];
+  onUpdateAgent: (agentId: string, updates: Partial<Agent>) => void;
 }
 
 export const ControlDeck: React.FC<ControlDeckProps> = ({ 
@@ -24,7 +26,9 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
   clients,
   onClientChange,
   isMasterOverride,
-  onToggleMasterOverride
+  onToggleMasterOverride,
+  agents,
+  onUpdateAgent
 }) => {
   const primaryTabs: { id: TabCategory; icon: any; label: string; led: string }[] = [
     { id: 'THREAT SCAN', icon: Shield, label: 'THREAT SCAN', led: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse' },
@@ -133,6 +137,39 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
                       />
                     )}
                   </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Agent Priority Matrix */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Cpu className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-widest font-bold">Priority Matrix</span>
+              </div>
+              <div className="space-y-3">
+                {agents.map((agent) => (
+                  <div key={agent.id} className="bg-black/20 border border-zinc-800 p-3 rounded-xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-tight">{agent.name}</span>
+                      <span className="text-[8px] text-zinc-500 font-mono uppercase">{agent.status}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {[1, 2, 3, 4, 5].map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => onUpdateAgent(agent.id, { priority: p })}
+                          className={`flex-1 h-6 rounded-md text-[10px] font-bold transition-all ${
+                            agent.priority === p 
+                              ? 'bg-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.4)]' 
+                              : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

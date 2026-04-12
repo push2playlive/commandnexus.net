@@ -48,6 +48,8 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
   const [triggerThreatType, setTriggerThreatType] = useState('SQL Injection');
   const [statusFilter, setStatusFilter] = useState<AgentStatus | 'All'>('All');
   const [dispatchLogs, setDispatchLogs] = useState<{id: string, message: string, timestamp: string}[]>([]);
+  const [manualThreatType, setManualThreatType] = useState('DDoS Attack');
+  const [manualThreatSource, setManualThreatSource] = useState('192.168.1.1');
   const lastProcessedThreatId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -81,29 +83,68 @@ export const TacticalHub: React.FC<TacticalHubProps> = ({
         return <DiagnosticsPanel />;
       case 'THREAT SCAN':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {threats.map((threat) => (
-              <div key={threat.id} className="bg-zinc-900/50 border border-zinc-800 p-4 rounded-lg flex items-start gap-4 group hover:border-red-500/30 transition-colors">
-                <div className={`p-2 rounded ${threat.status === 'blocked' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center mb-1">
-                    <h3 className="text-zinc-100 font-bold text-sm">{threat.type}</h3>
-                    <span className="text-[10px] text-zinc-500 font-mono">{threat.timestamp}</span>
-                  </div>
-                  <p className="text-zinc-400 text-xs font-mono mb-2">SOURCE: {threat.source}</p>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                      threat.status === 'blocked' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
-                    }`}>
-                      {threat.status}
-                    </span>
-                    <button className="text-[9px] text-zinc-500 hover:text-zinc-300 underline uppercase">Deep Trace</button>
-                  </div>
-                </div>
+          <div className="space-y-6">
+            {/* Manual Threat Entry */}
+            <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl shadow-shield">
+              <div className="flex items-center gap-3 mb-6">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                <h3 className="text-zinc-100 font-bold text-xs tracking-widest uppercase">Manual Threat Entry</h3>
               </div>
-            ))}
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="space-y-2">
+                  <label className="text-[10px] text-zinc-500 font-mono uppercase">Threat Type</label>
+                  <input 
+                    type="text" 
+                    value={manualThreatType}
+                    onChange={(e) => setManualThreatType(e.target.value)}
+                    className="w-full bg-black/40 border border-zinc-800 p-2 rounded text-zinc-100 font-mono text-xs focus:border-red-500/50 outline-none transition-colors"
+                    placeholder="e.g. DDoS Attack"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] text-zinc-500 font-mono uppercase">Source IP / Origin</label>
+                  <input 
+                    type="text" 
+                    value={manualThreatSource}
+                    onChange={(e) => setManualThreatSource(e.target.value)}
+                    className="w-full bg-black/40 border border-zinc-800 p-2 rounded text-zinc-100 font-mono text-xs focus:border-red-500/50 outline-none transition-colors"
+                    placeholder="e.g. 192.168.1.1"
+                  />
+                </div>
+                <button 
+                  onClick={() => onAddThreat(manualThreatType, manualThreatSource)}
+                  className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 text-[10px] font-bold uppercase py-2.5 rounded transition-all"
+                >
+                  Inject Threat Signature
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {threats.map((threat) => (
+                <div key={threat.id} className="bg-zinc-900/50 border border-zinc-800 p-4 rounded-lg flex items-start gap-4 group hover:border-red-500/30 transition-colors">
+                  <div className={`p-2 rounded ${threat.status === 'blocked' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-zinc-100 font-bold text-sm">{threat.type}</h3>
+                      <span className="text-[10px] text-zinc-500 font-mono">{threat.timestamp}</span>
+                    </div>
+                    <p className="text-zinc-400 text-xs font-mono mb-2">SOURCE: {threat.source}</p>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                        threat.status === 'blocked' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+                      }`}>
+                        {threat.status}
+                      </span>
+                      <button className="text-[9px] text-zinc-500 hover:text-zinc-300 underline uppercase">Deep Trace</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         );
       case 'AGENT COMMAND':
